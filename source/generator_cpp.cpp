@@ -7201,7 +7201,7 @@ void GeneratorCpp::GenerateEnumOutputStream(const std::shared_ptr<EnumType>& e)
 {
     // Generate enum output stream operator begin
     WriteLine();
-    WriteLineIndent("inline std::ostream& operator<<(std::ostream& stream, " + *e->name + " value);");
+    WriteLineIndent("std::ostream& operator<<(std::ostream& stream, " + *e->name + " value);");
 }
 
 void GeneratorCpp::GenerateEnumOutputStream_Source(const std::shared_ptr<EnumType>& e)
@@ -7231,7 +7231,7 @@ void GeneratorCpp::GenerateEnumLoggingStream(const std::shared_ptr<EnumType>& e)
     // Generate enum logging stream operator begin
     WriteLine();
     WriteLineIndent("#if defined(LOGGING_PROTOCOL)");
-    WriteLineIndent("inline CppLogging::Record& operator<<(CppLogging::Record& record, " + *e->name + " value);");
+    WriteLineIndent("CppLogging::Record& operator<<(CppLogging::Record& record, " + *e->name + " value);");
     WriteLineIndent("#endif");
 }
 
@@ -7390,7 +7390,7 @@ void GeneratorCpp::GenerateFlagsOutputStream(const std::shared_ptr<FlagsType>& f
 {
     // Generate flags output stream operator begin
     WriteLine();
-    WriteLineIndent("inline std::ostream& operator<<(std::ostream& stream, " + *f->name + " value);");
+    WriteLineIndent("std::ostream& operator<<(std::ostream& stream, " + *f->name + " value);");
 }
 
 void GeneratorCpp::GenerateFlagsOutputStream_Source(const std::shared_ptr<FlagsType> &f)
@@ -7428,7 +7428,7 @@ void GeneratorCpp::GenerateFlagsLoggingStream(const std::shared_ptr<FlagsType>& 
     // Generate flags logging stream operator begin
     WriteLine();
     WriteLineIndent("#if defined(LOGGING_PROTOCOL)");
-    WriteLineIndent("inline CppLogging::Record& operator<<(CppLogging::Record& record, " + *f->name + " value);");
+    WriteLineIndent("CppLogging::Record& operator<<(CppLogging::Record& record, " + *f->name + " value);");
     WriteLineIndent("#endif");
 }
 

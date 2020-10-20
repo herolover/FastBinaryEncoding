@@ -132,6 +132,7 @@ private:
     void GenerateEnumOutputStream(const std::shared_ptr<EnumType>& e);
     void GenerateEnumOutputStream_Source(const std::shared_ptr<EnumType>& e);
     void GenerateEnumLoggingStream(const std::shared_ptr<EnumType>& e);
+    void GenerateEnumLoggingStream_Source(const std::shared_ptr<EnumType>& e);
     void GenerateEnumJson(const std::shared_ptr<Package>& p, const std::shared_ptr<EnumType>& e);
     void GenerateEnumFieldModel(const std::shared_ptr<Package>& p, const std::shared_ptr<EnumType>& e);
     void GenerateEnumFinalModel(const std::shared_ptr<Package>& p, const std::shared_ptr<EnumType>& e);
@@ -139,6 +140,7 @@ private:
     void GenerateFlagsOutputStream(const std::shared_ptr<FlagsType>& f);
     void GenerateFlagsOutputStream_Source(const std::shared_ptr<FlagsType>& f);
     void GenerateFlagsLoggingStream(const std::shared_ptr<FlagsType>& f);
+    void GenerateFlagsLoggingStream_Source(const std::shared_ptr<FlagsType>& f);
     void GenerateFlagsJson(const std::shared_ptr<Package>& p, const std::shared_ptr<FlagsType>& f);
     void GenerateFlagsFieldModel(const std::shared_ptr<Package>& p, const std::shared_ptr<FlagsType>& f);
     void GenerateFlagsFinalModel(const std::shared_ptr<Package>& p, const std::shared_ptr<FlagsType>& f);

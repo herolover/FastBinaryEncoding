@@ -40,7 +40,6 @@ void GeneratorCpp::Generate(const std::shared_ptr<Package>& package)
 
     // Generate package files
     GeneratePackage_Header(package);
-    GeneratePackage_Inline(package);
     GeneratePackage_Source(package);
     if (JSON())
         GeneratePackage_Json(package);
@@ -176,6 +175,7 @@ void GeneratorCpp::GenerateImports()
 #include <mutex>
 #include <optional>
 #include <set>
+#include <ostream>
 #include <sstream>
 #include <stdexcept>
 #include <string>
@@ -6698,84 +6698,22 @@ void GeneratorCpp::GeneratePackage_Header(const std::shared_ptr<Package>& p)
     {
         // Generate child enums
         for (const auto& e : p->body->enums)
+        {
             GenerateEnum(p, e);
-
-        // Generate child flags
-        for (const auto& f : p->body->flags)
-            GenerateFlags(p, f);
-
-        // Generate child structs
-        for (const auto& s : p->body->structs)
-            GenerateStruct_Header(p, s);
-    }
-
-    // Generate namespace end
-    WriteLine();
-    WriteLineIndent("} // namespace " + *p->name);
-
-    // Generate inline import
-    GenerateImports(*p->name + ".inl");
-
-    // Generate package footer
-    GenerateFooter();
-
-    // Store the output file
-    WriteEnd();
-    Store(output);
-}
-
-void GeneratorCpp::GeneratePackage_Inline(const std::shared_ptr<Package>& p)
-{
-    CppCommon::Path output = _output;
-
-    // Create package path
-    CppCommon::Directory::CreateTree(output);
-
-    // Generate the output file
-    output /= *p->name + ".inl";
-    WriteBegin();
-
-    // Generate package inline
-    GenerateInline(CppCommon::Path(_input).filename().string());
-
-    // Generate namespace begin
-    WriteLine();
-    WriteLineIndent("namespace " + *p->name + " {");
-
-    // Generate namespace body
-    if (p->body)
-    {
-        // Generate child enums
-        for (const auto& e : p->body->enums)
-        {
-            // Generate enum output stream
             GenerateEnumOutputStream(e);
-
-            // Generate enum logging stream
-            if (Logging())
-                GenerateEnumLoggingStream(e);
         }
 
         // Generate child flags
         for (const auto& f : p->body->flags)
         {
-            // Generate flags output stream
+            GenerateFlags(p, f);
             GenerateFlagsOutputStream(f);
-
-            // Generate flags logging stream
-            if (Logging())
-                GenerateFlagsLoggingStream(f);
         }
 
         // Generate child structs
         for (const auto& s : p->body->structs)
         {
-            // Generate struct output stream
-            GenerateStructOutputStream(p, s);
-
-            // Generate struct logging stream
-            if (Logging())
-                GenerateStructLoggingStream(p, s);
+            GenerateStruct_Header(p, s);
         }
     }
 
@@ -6815,9 +6753,30 @@ void GeneratorCpp::GeneratePackage_Source(const std::shared_ptr<Package>& p)
     // Generate namespace body
     if (p->body)
     {
+        // Generate child enums
+        for (const auto& e : p->body->enums)
+        {
+            GenerateEnumOutputStream_Source(e);
+        }
+
+        // Generate child flags
+        for (const auto& f : p->body->flags)
+        {
+            GenerateFlagsOutputStream_Source(f);
+        }
+
         // Generate child structs
         for (const auto& s : p->body->structs)
+        {
             GenerateStruct_Source(p, s);
+
+            // Generate struct output stream
+            GenerateStructOutputStream_Source(p, s);
+
+            // Generate struct logging stream
+            if (Logging())
+                GenerateStructLoggingStream_Source(p, s);
+        }
     }
 
     // Generate namespace end
@@ -7234,8 +7193,14 @@ void GeneratorCpp::GenerateEnumOutputStream(const std::shared_ptr<EnumType>& e)
 {
     // Generate enum output stream operator begin
     WriteLine();
-    WriteLineIndent("template <class TOutputStream>");
-    WriteLineIndent("inline TOutputStream& operator<<(TOutputStream& stream, " + *e->name + " value)");
+    WriteLineIndent("inline std::ostream& operator<<(std::ostream& stream, " + *e->name + " value);");
+}
+
+void GeneratorCpp::GenerateEnumOutputStream_Source(const std::shared_ptr<EnumType>& e)
+{
+    // Generate enum output stream operator begin
+    WriteLine();
+    WriteLineIndent("std::ostream& operator<<(std::ostream& stream, " + *e->name + " value)");
     WriteLineIndent("{");
     Indent(1);
 
@@ -7408,8 +7373,14 @@ void GeneratorCpp::GenerateFlagsOutputStream(const std::shared_ptr<FlagsType>& f
 {
     // Generate flags output stream operator begin
     WriteLine();
-    WriteLineIndent("template <class TOutputStream>");
-    WriteLineIndent("inline TOutputStream& operator<<(TOutputStream& stream, " + *f->name + " value)");
+    WriteLineIndent("inline std::ostream& operator<<(std::ostream& stream, " + *f->name + " value);");
+}
+
+void GeneratorCpp::GenerateFlagsOutputStream_Source(const std::shared_ptr<FlagsType> &f)
+{
+    // Generate flags output stream operator begin
+    WriteLine();
+    WriteLineIndent("std::ostream& operator<<(std::ostream& stream, " + *f->name + " value)");
     WriteLineIndent("{");
     Indent(1);
 
@@ -7665,8 +7636,7 @@ void GeneratorCpp::GenerateStruct_Header(const std::shared_ptr<Package>& p, cons
 
     // Generate struct output stream operator
     WriteLine();
-    WriteLineIndent("template <class TOutputStream>");
-    WriteLineIndent("friend TOutputStream& operator<<(TOutputStream& stream, const " + *s->name + "& value);");
+    WriteLineIndent("friend std::ostream& operator<<(std::ostream& stream, const " + *s->name + "& value);");
 
     // Generate struct output stream operator
     if (Logging())
@@ -7846,12 +7816,11 @@ void GeneratorCpp::GenerateStruct_Source(const std::shared_ptr<Package>& p, cons
     WriteLineIndent("}");
 }
 
-void GeneratorCpp::GenerateStructOutputStream(const std::shared_ptr<Package>& p, const std::shared_ptr<StructType>& s)
+void GeneratorCpp::GenerateStructOutputStream_Source(const std::shared_ptr<Package>& p, const std::shared_ptr<StructType>& s)
 {
     // Generate struct output stream operator begin
     WriteLine();
-    WriteLineIndent("template <class TOutputStream>");
-    WriteLineIndent("inline TOutputStream& operator<<(TOutputStream& stream, const " + *s->name + "& value)");
+    WriteLineIndent("std::ostream& operator<<(std::ostream& stream, const " + *s->name + "& value)");
     WriteLineIndent("{");
     Indent(1);
 
@@ -7989,12 +7958,12 @@ void GeneratorCpp::GenerateStructOutputStream(const std::shared_ptr<Package>& p,
     WriteLineIndent("}");
 }
 
-void GeneratorCpp::GenerateStructLoggingStream(const std::shared_ptr<Package>& p, const std::shared_ptr<StructType>& s)
+void GeneratorCpp::GenerateStructLoggingStream_Source(const std::shared_ptr<Package>& p, const std::shared_ptr<StructType>& s)
 {
     // Generate struct logging stream operator begin
     WriteLine();
     WriteLineIndent("#if defined(LOGGING_PROTOCOL)");
-    WriteLineIndent("inline CppLogging::Record& operator<<(CppLogging::Record& record, const " + *s->name + "& value)");
+    WriteLineIndent("CppLogging::Record& operator<<(CppLogging::Record& record, const " + *s->name + "& value)");
     WriteLineIndent("{");
     Indent(1);
 

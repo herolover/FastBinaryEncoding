@@ -26,6 +26,8 @@ include(SetCompilerWarnings)
 include(SetPlatformFeatures)
 include(SystemInformation)
 
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} /EHsc /wd4189")
+
 # External packages
 find_package(BISON)
 find_package(FLEX)

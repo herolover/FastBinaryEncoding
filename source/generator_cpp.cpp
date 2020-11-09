@@ -6694,6 +6694,18 @@ void GeneratorCpp::GeneratePackage_ForwardDeclaration(const std::shared_ptr<Pack
     // Generate namespace body
     if (p->body)
     {
+        // Generate child enums
+        for (const auto& e : p->body->enums)
+        {
+            WriteLineIndent("enum class " + std::string(e->attributes->deprecated ? "[[deprecated]] " : "") + *e->name + ";");
+        }
+
+        // Generate child flags
+        for (const auto& f : p->body->flags)
+        {
+            WriteLineIndent("enum class " + std::string(f->attributes->deprecated ? "[[deprecated]] " : "") + *f->name + ";");
+        }
+
         // Generate child structs
         for (const auto& s : p->body->structs)
         {

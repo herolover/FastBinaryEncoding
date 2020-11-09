@@ -6697,13 +6697,19 @@ void GeneratorCpp::GeneratePackage_ForwardDeclaration(const std::shared_ptr<Pack
         // Generate child enums
         for (const auto& e : p->body->enums)
         {
-            WriteLineIndent("enum class " + std::string(e->attributes->deprecated ? "[[deprecated]] " : "") + *e->name + ";");
+            WriteIndent("enum class " + std::string(e->attributes->deprecated ? "[[deprecated]] " : "") + *e->name);
+            if (e->base && !e->base->empty())
+                Write(" : " + ConvertEnumType(*e->base));
+            WriteLine(";");
         }
 
         // Generate child flags
         for (const auto& f : p->body->flags)
         {
-            WriteLineIndent("enum class " + std::string(f->attributes->deprecated ? "[[deprecated]] " : "") + *f->name + ";");
+            WriteIndent("enum class " + std::string(f->attributes->deprecated ? "[[deprecated]] " : "") + *f->name);
+            if (f->base && !f->base->empty())
+                Write(" : " + ConvertEnumType(*f->base));
+            WriteLine(";");
         }
 
         // Generate child structs

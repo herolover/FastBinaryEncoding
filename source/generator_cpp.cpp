@@ -39,6 +39,7 @@ void GeneratorCpp::Generate(const std::shared_ptr<Package>& package)
         GenerateFBEJson_Header(_output);
 
     // Generate package files
+    GeneratePackage_ForwardDeclaration(package);
     GeneratePackage_Header(package);
     GeneratePackage_Source(package);
     if (JSON())
@@ -6670,6 +6671,46 @@ void GeneratorCpp::GenerateFBEJson_Header(const CppCommon::Path& path)
     // Store the JSON file
     WriteEnd();
     Store(common);
+}
+
+void GeneratorCpp::GeneratePackage_ForwardDeclaration(const std::shared_ptr<Package> &p)
+{
+    CppCommon::Path output = _output;
+
+    // Create package path
+    CppCommon::Directory::CreateTree(output);
+
+    // Generate the output file
+    output /= *p->name + "_fwd.h";
+    WriteBegin();
+
+    // Generate package header
+    GenerateHeader(CppCommon::Path(_input).filename().string());
+
+    // Generate namespace begin
+    WriteLine();
+    WriteLineIndent("namespace " + *p->name + " {");
+
+    // Generate namespace body
+    if (p->body)
+    {
+        // Generate child structs
+        for (const auto& s : p->body->structs)
+        {
+            WriteLineIndent("struct " + std::string(s->attributes->deprecated ? "[[deprecated]] " : "") + *s->name + ";");
+        }
+    }
+
+    // Generate namespace end
+    WriteLine();
+    WriteLineIndent("} // namespace " + *p->name);
+
+    // Generate package footer
+    GenerateFooter();
+
+    // Store the output file
+    WriteEnd();
+    Store(output);
 }
 
 void GeneratorCpp::GeneratePackage_Header(const std::shared_ptr<Package>& p)

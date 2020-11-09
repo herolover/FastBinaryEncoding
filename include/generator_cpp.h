@@ -119,6 +119,7 @@ private:
     void GenerateFBEProtocol_Source(const CppCommon::Path& path);
     void GenerateFBEJson_Header(const CppCommon::Path& path);
 
+    void GeneratePackage_ForwardDeclaration(const std::shared_ptr<Package>& p);
     void GeneratePackage_Header(const std::shared_ptr<Package>& p);
     void GeneratePackage_Source(const std::shared_ptr<Package>& p);
     void GeneratePackage_Json(const std::shared_ptr<Package>& p);

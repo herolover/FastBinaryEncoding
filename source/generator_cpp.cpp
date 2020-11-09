@@ -253,6 +253,21 @@ void GeneratorCpp::GenerateImports(const std::shared_ptr<Package>& p)
     WriteLineIndent("} // namespace FBE");
 }
 
+void GeneratorCpp::GenerateImports_ForwardDeclaration(const std::shared_ptr<Package> &p)
+{
+    // Generate common imports
+    WriteLine();
+    WriteLineIndent("#include \"fbe.h\"");
+
+    // Generate packages import
+    if (p->import)
+    {
+        WriteLine();
+        for (const auto& import : p->import->imports)
+            WriteLineIndent("#include \"" + *import + "_fwd.h\"");
+    }
+}
+
 void GeneratorCpp::GenerateImportsModels(const std::shared_ptr<Package>& p, bool final)
 {
     // Generate common imports
@@ -6686,6 +6701,9 @@ void GeneratorCpp::GeneratePackage_ForwardDeclaration(const std::shared_ptr<Pack
 
     // Generate package header
     GenerateHeader(CppCommon::Path(_input).filename().string());
+
+    // Generate imports
+    GenerateImports_ForwardDeclaration(p);
 
     // Generate namespace begin
     WriteLine();

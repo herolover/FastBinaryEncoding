@@ -51,6 +51,7 @@ private:
     void GenerateImports();
     void GenerateImports(const std::string& source);
     void GenerateImports(const std::shared_ptr<Package>& p);
+    void GenerateImports_ForwardDeclaration(const std::shared_ptr<Package>& p);
     void GenerateImportsModels(const std::shared_ptr<Package>& p, bool final);
     void GenerateImportsProtocol(const std::shared_ptr<Package>& p, bool final);
     void GenerateImportsJson();

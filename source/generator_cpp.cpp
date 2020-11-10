@@ -9874,15 +9874,13 @@ void GeneratorCpp::GenerateClient_Header(const std::shared_ptr<Package>& p, bool
     Indent(1);
 
     // Generate client constructors
-    WriteLineIndent(client + "() = default;");
-    WriteLineIndent(client + "(const " + client + "&) = default;");
-    WriteLineIndent(client + "(" + client + "&&) = default;");
-    WriteLineIndent("virtual ~" + client + "() = default;");
+    WriteLineIndent(client + "();");
+    WriteLineIndent(client + "(" + client + "&&);");
+    WriteLineIndent("virtual ~" + client + "();");
 
     // Generate client operators
     WriteLine();
-    WriteLineIndent(client + "& operator=(const " + client + "&) = default;");
-    WriteLineIndent(client + "& operator=(" + client + "&&) = default;");
+    WriteLineIndent(client + "& operator=(" + client + "&&);");
 
     // Generate imported clients accessors
     if (p->import)
@@ -10106,6 +10104,15 @@ void GeneratorCpp::GenerateClient_Source(const std::shared_ptr<Package>& p, bool
 {
     std::string client = (final ? "FinalClient" : "Client");
     std::string sender = (final ? "FinalSender" : "Sender");
+
+    WriteLineIndent(client + "::" + client + "() = default;");
+    WriteLineIndent(client + "::" + client + "(" + client + "&&) = default;");
+    WriteLineIndent(client + "::~" + client + "() = default;");
+
+    // Generate client operators
+    WriteLine();
+    WriteLineIndent(client + "::" + client + "& operator=(" + client + "&&) = default;");
+    WriteLine();
 
     // Collect responses & rejects collections
     std::set<std::string> responses;

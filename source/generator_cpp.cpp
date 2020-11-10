@@ -287,7 +287,7 @@ void GeneratorCpp::GenerateImportsProtocol(const std::shared_ptr<Package>& p, bo
 {
     // Generate common imports
     WriteLine();
-    WriteLineIndent("#include \"" + *p->name + (final ? "_final" : "") + "_models.h\"");
+    WriteLineIndent("#include \"" + *p->name + (final ? "_final" : "") + "_fwd.h\"");
 
     // Generate packages import
     if (p->import)
@@ -6741,6 +6741,28 @@ void GeneratorCpp::GeneratePackage_ForwardDeclaration(const std::shared_ptr<Pack
     WriteLine();
     WriteLineIndent("} // namespace " + *p->name);
 
+    // Generate namespace begin
+    WriteLine();
+    WriteLineIndent("namespace FBE {");
+    WriteLine();
+    WriteLineIndent("namespace " + *p->name + " {");
+
+    // Generate namespace body
+    if (p->body)
+    {
+        // Generate child structs
+        for (const auto& s : p->body->structs)
+        {
+            WriteLineIndent("class " + std::string(s->attributes->deprecated ? "[[deprecated]] " : "") + *s->name + "Model;");
+        }
+    }
+
+    // Generate namespace end
+    WriteLine();
+    WriteLineIndent("} // namespace " + *p->name);
+    WriteLine();
+    WriteLineIndent("} // namespace FBE");
+
     // Generate package footer
     GenerateFooter();
 
@@ -7206,6 +7228,7 @@ void GeneratorCpp::GeneratePackageProtocol_Source(const std::shared_ptr<Package>
 
     // Generate imports
     GenerateImports(*p->name + (final ? "_final" : "") + "_protocol.h");
+    GenerateImports(*p->name + (final ? "_final" : "") + "_models.h");
 
     // Generate namespace begin
     WriteLine();
@@ -9369,30 +9392,14 @@ void GeneratorCpp::GenerateSender_Header(const std::shared_ptr<Package>& p, bool
     Indent(1);
 
     // Generate sender constructors
-    WriteLineIndent(sender + "()");
+    WriteLineIndent(sender + "();");
     bool first = true;
-    if (p->body)
-    {
-        Indent(1);
-        for (const auto& s : p->body->structs)
-        {
-            if (s->message)
-            {
-                WriteLineIndent((first ? ": " : ", ") + *s->name + "" + "Model(this->_buffer)");
-                first = false;
-            }
-        }
-        Indent(-1);
-    }
-    WriteLineIndent("{" + std::string(final ? " this->final(true); " : "") + "}");
-    WriteLineIndent(sender + "(const " + sender + "&) = default;");
-    WriteLineIndent(sender + "(" + sender + "&&) noexcept = default;");
-    WriteLineIndent("virtual ~" + sender + "() = default;");
+    WriteLineIndent(sender + "(" + sender + "&&) noexcept;");
+    WriteLineIndent("virtual ~" + sender + "();");
 
     // Generate sender operators
     WriteLine();
-    WriteLineIndent(sender + "& operator=(const " + sender + "&) = default;");
-    WriteLineIndent(sender + "& operator=(" + sender + "&&) noexcept = default;");
+    WriteLineIndent(sender + "& operator=(" + sender + "&&) noexcept;");
 
     // Generate imported senders accessors
     if (p->import)
@@ -9425,12 +9432,10 @@ void GeneratorCpp::GenerateSender_Header(const std::shared_ptr<Package>& p, bool
     {
         Indent(-1);
         WriteLine();
-        WriteLineIndent("public:");
+        WriteLineIndent("private:");
         Indent(1);
-        WriteLineIndent("// Sender models accessors");
-        for (const auto& s : p->body->structs)
-            if (s->message)
-                WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+        WriteLineIndent("struct Data;");
+        WriteLineIndent("std::unique_ptr<Data> _sender_data;");
     }
 
     // Generate sender end
@@ -9441,10 +9446,46 @@ void GeneratorCpp::GenerateSender_Header(const std::shared_ptr<Package>& p, bool
 void GeneratorCpp::GenerateSender_Source(const std::shared_ptr<Package>& p, bool final)
 {
     std::string sender = (final ? "FinalSender" : "Sender");
+    std::string model = (final ? "FinalModel" : "Model");
 
-    // Generate send() methods
     if (p->body)
     {
+        WriteLineIndent("struct " + sender + "::Data");
+        WriteLineIndent("{");
+        Indent(1);
+        for (const auto& s : p->body->structs)
+            if (s->message)
+                WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+
+        WriteLine();
+        WriteLineIndent("Data(std::shared_ptr<FBEBuffer> buffer)");
+        Indent(1);
+        bool first = true;
+        for (const auto& s : p->body->structs)
+        {
+            if (s->message)
+            {
+                WriteLineIndent((first ? ": " : ", ") + *s->name + "" + "Model(buffer)");
+                first = false;
+            }
+        }
+        Indent(-1);
+        WriteLineIndent("{}");
+        Indent(-1);
+        WriteLineIndent("};");
+
+        WriteLine();
+        WriteLineIndent(sender + "::" + sender + "(): _sender_data(std::make_unique<" + sender + "::Data>(this->_buffer))");
+        WriteLineIndent("{" + std::string(final ? " this->final(true); " : "") + "}");
+        WriteLineIndent(sender + "::" + sender + "(" + sender + "&&) noexcept = default;");
+        WriteLineIndent(sender + "::~" + sender + "() = default;");
+
+        // Generate sender operators
+        WriteLine();
+        WriteLineIndent(sender + "& " + sender + "::operator=(" + sender + "&&) noexcept = default;");
+        WriteLine();
+
+        // Generate send() methods
         for (const auto& s : p->body->structs)
         {
             if (s->message)
@@ -9455,9 +9496,9 @@ void GeneratorCpp::GenerateSender_Source(const std::shared_ptr<Package>& p, bool
                 WriteLineIndent("{");
                 Indent(1);
                 WriteLineIndent("// Serialize the value into the FBE stream");
-                WriteLineIndent("size_t serialized = " + *s->name + "Model.serialize(value);");
+                WriteLineIndent("size_t serialized = _sender_data->" + *s->name + "Model.serialize(value);");
                 WriteLineIndent("assert((serialized > 0) && \"" + *p->name + "::" + *s->name + " serialization failed!\");");
-                WriteLineIndent("assert(" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
+                WriteLineIndent("assert(_sender_data->" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
                 WriteLine();
                 WriteLineIndent("// Log the value");
                 WriteLineIndent("if (this->_logging)");
@@ -9501,15 +9542,13 @@ void GeneratorCpp::GenerateReceiver_Header(const std::shared_ptr<Package>& p, bo
     Indent(1);
 
     // Generate receiver constructors
-    WriteLineIndent(receiver + "() {" + std::string(final ? " this->final(true); " : "") + "}");
-    WriteLineIndent(receiver + "(const " + receiver + "&) = default;");
-    WriteLineIndent(receiver + "(" + receiver + "&&) = default;");
-    WriteLineIndent("virtual ~" + receiver + "() = default;");
+    WriteLineIndent(receiver + "();");
+    WriteLineIndent(receiver + "(" + receiver + "&&);");
+    WriteLineIndent("virtual ~" + receiver + "();");
 
     // Generate receiver operators
     WriteLine();
-    WriteLineIndent(receiver + "& operator=(const " + receiver + "&) = default;");
-    WriteLineIndent(receiver + "& operator=(" + receiver + "&&) = default;");
+    WriteLineIndent(receiver + "& operator=(" + receiver + "&&);");
 
     // Generate receiver handlers
     if (p->body)
@@ -9541,20 +9580,8 @@ void GeneratorCpp::GenerateReceiver_Header(const std::shared_ptr<Package>& p, bo
         WriteLine();
         WriteLineIndent("private:");
         Indent(1);
-        WriteLineIndent("// Receiver values accessors");
-        for (const auto& s : p->body->structs)
-        {
-            if (s->message)
-            {
-                std::string struct_name = "::" + *p->name + "::" + *s->name;
-                WriteLineIndent(struct_name + " " + *s->name + "Value;");
-            }
-        }
-        WriteLine();
-        WriteLineIndent("// Receiver models accessors");
-        for (const auto& s : p->body->structs)
-            if (s->message)
-                WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+        WriteLineIndent("struct Data;");
+        WriteLineIndent("std::unique_ptr<Data> _receiver_data;");
     }
 
     // Generate receiver end
@@ -9566,6 +9593,38 @@ void GeneratorCpp::GenerateReceiver_Source(const std::shared_ptr<Package>& p, bo
 {
     std::string receiver = (final ? "FinalReceiver" : "Receiver");
     std::string model = (final ? "FinalModel" : "Model");
+
+    WriteLineIndent("struct " + receiver + "::Data");
+    WriteLineIndent("{");
+    Indent(1);
+    WriteLineIndent("// Receiver values accessors");
+    for (const auto& s : p->body->structs)
+    {
+        if (s->message)
+        {
+            std::string struct_name = "::" + *p->name + "::" + *s->name;
+            WriteLineIndent(struct_name + " " + *s->name + "Value;");
+        }
+    }
+    WriteLine();
+    WriteLineIndent("// Receiver models accessors");
+    for (const auto& s : p->body->structs)
+        if (s->message)
+            WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+
+    Indent(-1);
+    WriteLineIndent("};");
+
+    WriteLine();
+    WriteLineIndent(receiver + "::" + receiver + "(): _receiver_data(std::make_unique<" + receiver + "::Data>())");
+    WriteLineIndent("{" + std::string(final ? " this->final(true); " : "") + "}");
+    WriteLineIndent(receiver + "::" + receiver + "(" + receiver + "&&) = default;");
+    WriteLineIndent(receiver + "::~" + receiver + "() = default;");
+
+    // Generate receiver operators
+    WriteLine();
+    WriteLineIndent(receiver + "& " + receiver + "::operator=(" + receiver + "&&) = default;");
+    WriteLine();
 
     // Generate receiver message handler
     WriteLine();
@@ -9586,22 +9645,22 @@ void GeneratorCpp::GenerateReceiver_Source(const std::shared_ptr<Package>& p, bo
                 WriteLineIndent("{");
                 Indent(1);
                 WriteLineIndent("// Deserialize the value from the FBE stream");
-                WriteLineIndent(*s->name + "Model.attach(data, size);");
-                WriteLineIndent("assert(" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
-                WriteLineIndent("[[maybe_unused]] size_t deserialized = " + *s->name + "Model.deserialize(" + *s->name + "Value);");
+                WriteLineIndent("_receiver_data->" + *s->name + "Model.attach(data, size);");
+                WriteLineIndent("assert(_receiver_data->" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
+                WriteLineIndent("[[maybe_unused]] size_t deserialized = _receiver_data->" + *s->name + "Model.deserialize(_receiver_data->" + *s->name + "Value);");
                 WriteLineIndent("assert((deserialized > 0) && \"" + *p->name + "::" + *s->name + " deserialization failed!\");");
                 WriteLine();
                 WriteLineIndent("// Log the value");
                 WriteLineIndent("if (this->_logging)");
                 WriteLineIndent("{");
                 Indent(1);
-                WriteLineIndent("std::string message = " + *s->name + "Value.string();");
+                WriteLineIndent("std::string message = _receiver_data->" + *s->name + "Value.string();");
                 WriteLineIndent("this->onReceiveLog(message);");
                 Indent(-1);
                 WriteLineIndent("}");
                 WriteLine();
                 WriteLineIndent("// Call receive handler with deserialized value");
-                WriteLineIndent("onReceive(" + *s->name + "Value);");
+                WriteLineIndent("onReceive(_receiver_data->" + *s->name + "Value);");
                 WriteLineIndent("return true;");
                 Indent(-1);
                 WriteLineIndent("}");
@@ -9652,15 +9711,13 @@ void GeneratorCpp::GenerateProxy_Header(const std::shared_ptr<Package>& p, bool 
     Indent(1);
 
     // Generate proxy constructors
-    WriteLineIndent(proxy + "() {" + std::string(final ? " this->final(true); " : "") + "}");
-    WriteLineIndent(proxy + "(const " + proxy + "&) = default;");
-    WriteLineIndent(proxy + "(" + proxy + "&&) = default;");
-    WriteLineIndent("virtual ~" + proxy + "() = default;");
+    WriteLineIndent(proxy + "();");
+    WriteLineIndent(proxy + "(" + proxy + "&&);");
+    WriteLineIndent("virtual ~" + proxy + "();");
 
     // Generate proxy operators
     WriteLine();
-    WriteLineIndent(proxy + "& operator=(const " + proxy + "&) = default;");
-    WriteLineIndent(proxy + "& operator=(" + proxy + "&&) = default;");
+    WriteLineIndent(proxy + "& operator=(" + proxy + "&&);");
 
     // Generate proxy handlers
     if (p->body)
@@ -9692,10 +9749,8 @@ void GeneratorCpp::GenerateProxy_Header(const std::shared_ptr<Package>& p, bool 
         WriteLine();
         WriteLineIndent("private:");
         Indent(1);
-        WriteLineIndent("// Proxy models accessors");
-        for (const auto& s : p->body->structs)
-            if (s->message)
-                WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+        WriteLineIndent("struct Data;");
+        WriteLineIndent("std::unique_ptr<Data> _proxy_data;");
     }
 
     // Generate proxy end
@@ -9707,6 +9762,28 @@ void GeneratorCpp::GenerateProxy_Source(const std::shared_ptr<Package>& p, bool 
 {
     std::string proxy = (final ? "FinalProxy" : "Proxy");
     std::string model = (final ? "FinalModel" : "Model");
+
+    WriteLineIndent("struct " + proxy + "::Data");
+    WriteLineIndent("{");
+    Indent(1);
+    WriteLineIndent("// Proxy models accessors");
+    for (const auto& s : p->body->structs)
+        if (s->message)
+            WriteLineIndent("FBE::" + *p->name + "::" + *s->name + model + " " + *s->name + "Model;");
+
+    Indent(-1);
+    WriteLineIndent("};");
+
+    WriteLine();
+    WriteLineIndent(proxy + "::" + proxy + "(): _proxy_data(std::make_unique<" + proxy + "::Data>())");
+    WriteLineIndent("{" + std::string(final ? " this->final(true); " : "") + "}");
+    WriteLineIndent(proxy + "::" + proxy + "(" + proxy + "&&) = default;");
+    WriteLineIndent(proxy + "::~" + proxy + "() = default;");
+
+    // Generate proxy operators
+    WriteLine();
+    WriteLineIndent(proxy + "& " + proxy + "::operator=(" + proxy + "&&) = default;");
+    WriteLine();
 
     // Generate proxy message handler
     WriteLine();
@@ -9727,17 +9804,17 @@ void GeneratorCpp::GenerateProxy_Source(const std::shared_ptr<Package>& p, bool 
                 WriteLineIndent("{");
                 Indent(1);
                 WriteLineIndent("// Attach the FBE stream to the proxy model");
-                WriteLineIndent(*s->name + "Model.attach(data, size);");
-                WriteLineIndent("assert(" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
+                WriteLineIndent("_proxy_data->" + *s->name + "Model.attach(data, size);");
+                WriteLineIndent("assert(_proxy_data->" + *s->name + "Model.verify() && \"" + *p->name + "::" + *s->name + " validation failed!\");");
                 WriteLine();
-                WriteLineIndent("size_t fbe_begin = " + *s->name + "Model.model.get_begin();");
+                WriteLineIndent("size_t fbe_begin = _proxy_data->" + *s->name + "Model.model.get_begin();");
                 WriteLineIndent("if (fbe_begin == 0)");
                 Indent(1);
                 WriteLineIndent("return false;");
                 Indent(-1);
                 WriteLineIndent("// Call proxy handler");
-                WriteLineIndent("onProxy(" + *s->name + "Model, type, data, size);");
-                WriteLineIndent(*s->name + "Model.model.get_end(fbe_begin);");
+                WriteLineIndent("onProxy(_proxy_data->" + *s->name + "Model, type, data, size);");
+                WriteLineIndent("_proxy_data->" + *s->name + "Model.model.get_end(fbe_begin);");
                 WriteLineIndent("return true;");
                 Indent(-1);
                 WriteLineIndent("}");

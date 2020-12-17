@@ -1182,11 +1182,34 @@ public:
     // Initialize the write buffer with the given capacity
     explicit FBEBuffer(size_t capacity) : FBEBuffer() { reserve(capacity); }
     FBEBuffer(const FBEBuffer&) = delete;
-    FBEBuffer(FBEBuffer&&) noexcept = default;
+    FBEBuffer(FBEBuffer&& other) noexcept
+        : _data(other._data)
+        , _capacity(other._capacity)
+        , _size(other._size)
+        , _offset(other._offset)
+    {
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+        other._offset = 0;
+    }
     ~FBEBuffer() { if (_capacity > 0) std::free(_data); }
 
     FBEBuffer& operator=(const FBEBuffer&) = delete;
-    FBEBuffer& operator=(FBEBuffer&&) noexcept = default;
+    FBEBuffer& operator=(FBEBuffer&& other) noexcept
+    {
+        _data = other._data;
+        _capacity = other._capacity;
+        _size = other._size;
+        _offset = other._offset;
+
+        other._data = nullptr;
+        other._capacity = 0;
+        other._size = 0;
+        other._offset = 0;
+
+        return *this;
+    }
 
     bool empty() const noexcept { return (_data == nullptr) || (_size == 0); }
     const uint8_t* data() const noexcept { return _data; }

@@ -1948,7 +1948,7 @@ const INT64_MIN = Int64.fromBits(0, 0x80000000 | 0)
 const INT64_MAX = Int64.fromBits(0xFFFFFFFF | 0, 0x7FFFFFFF | 0)
 const INT64_TWO_PWR_24 = Int64.fromInt32(INT64_TWO_PWR_24_DBL)
 
-exports.Int64 = Int64
+export { Int64 };
 )CODE";
 
     // Prepare code template
@@ -2852,7 +2852,7 @@ const UINT64_MIN = UInt64.fromInt32(0)
 const UINT64_MAX = UInt64.fromBits(0xFFFFFFFF | 0, 0xFFFFFFFF | 0)
 const UINT64_TWO_PWR_24 = UInt64.fromInt32(UINT64_TWO_PWR_24_DBL)
 
-exports.UInt64 = UInt64
+export { UInt64 };
 )CODE";
 
     // Prepare code template
@@ -3179,7 +3179,7 @@ const TWO_POW_8 = 256
 const TWO_POW_6 = 64
 const TWO_POW_4 = 16
 
-exports.UUID = UUID
+export { UUID };
 )CODE";
 
     // Prepare code template
@@ -3250,7 +3250,7 @@ let ieee754read = function (buffer, offset, isLE, mLen, nBytes) {
   return (s ? -1 : 1) * m * Math.pow(2, e - mLen)
 }
 
-exports.ieee754read = ieee754read
+export { ieee754read };
 
 /**
  * Write float/double value into the given buffer
@@ -3313,7 +3313,7 @@ let ieee754write = function (buffer, offset, value, isLE, mLen, nBytes) {
   buffer[offset + i - d] |= s * 128
 }
 
-exports.ieee754write = ieee754write
+export { ieee754write };
 )CODE";
 
     // Prepare code template
@@ -3362,7 +3362,7 @@ let utf8count = function (str) {
   return bytes
 }
 
-exports.utf8count = utf8count
+export { utf8count };
 
 /**
  * Encode string to UTF-8 bytes array
@@ -3466,7 +3466,7 @@ let utf8encode = function (buffer, offset, str) {
   }
 }
 
-exports.utf8encode = utf8encode
+export { utf8encode };
 
 /**
  * Decode UTF-8 bytes array to string
@@ -3565,7 +3565,7 @@ let utf8decode = function (buffer, offset, size) {
   return result
 }
 
-exports.utf8decode = utf8decode
+export { utf8decode };
 )CODE";
 
     // Prepare code template
@@ -3594,11 +3594,11 @@ void GeneratorJavaScript::GenerateFBE(const CppCommon::Path& path)
 /* eslint-disable prefer-const */
 'use strict'
 
-const big = require('./big')
-const int64 = require('./int64')
-const ieee754 = require('./ieee754')
-const utf8 = require('./utf8')
-const uuid = require('./uuid')
+import * as big from './big'
+import * as int64 from './int64'
+import * as ieee754 from './ieee754'
+import * as utf8 from './utf8'
+import * as uuid from './uuid'
 
 const Big = big.Big
 const Int64 = int64.Int64
@@ -3717,7 +3717,7 @@ class DeferredPromise {
   }
 }
 
-exports.DeferredPromise = DeferredPromise
+export { DeferredPromise };
 )CODE";
 
     // Prepare code template
@@ -3847,7 +3847,7 @@ class BaseBuffer {
   }
 }
 
-exports.BaseBuffer = BaseBuffer
+export { BaseBuffer };
 )CODE";
 
     // Prepare code template
@@ -4016,7 +4016,7 @@ class WriteBuffer extends BaseBuffer {
   }
 }
 
-exports.WriteBuffer = WriteBuffer
+export { WriteBuffer };
 )CODE";
 
     // Prepare code template
@@ -4070,7 +4070,7 @@ class ReadBuffer extends BaseBuffer {
   }
 }
 
-exports.ReadBuffer = ReadBuffer
+export { ReadBuffer };
 )CODE";
 
     // Prepare code template
@@ -4233,7 +4233,7 @@ class Model {
   }
 }
 
-exports.Model = Model
+export { Model };
 )CODE";
 
     // Prepare code template
@@ -4820,7 +4820,7 @@ class FieldModelBase {
   }
 }
 
-exports.FieldModelBase = FieldModelBase
+export { FieldModelBase };
 )CODE";
 
     // Prepare code template
@@ -4846,7 +4846,7 @@ class FieldModel extends FieldModelBase {
   }
 }
 
-exports.FieldModel = FieldModel
+export { FieldModel };
 )CODE";
 
     // Prepare code template
@@ -4900,7 +4900,7 @@ class FieldModel_NAME_ extends FieldModel {
   }
 }
 
-exports.FieldModel_NAME_ = FieldModel_NAME_
+export { FieldModel_NAME_ };
 )CODE";
 
     // Prepare code template
@@ -5014,7 +5014,7 @@ class FieldModelDecimal extends FieldModel {
   }
 }
 
-exports.FieldModelDecimal = FieldModelDecimal
+export { FieldModelDecimal };
 )CODE";
 
     // Prepare code template
@@ -5070,7 +5070,7 @@ class FieldModelTimestamp extends FieldModel {
   }
 }
 
-exports.FieldModelTimestamp = FieldModelTimestamp
+export { FieldModelTimestamp };
 )CODE";
 
     // Prepare code template
@@ -5124,7 +5124,7 @@ class FieldModelUUID extends FieldModel {
   }
 }
 
-exports.FieldModelUUID = FieldModelUUID
+export { FieldModelUUID };
 )CODE";
 
     // Prepare code template
@@ -5245,7 +5245,7 @@ class FieldModelBytes extends FieldModel {
   }
 }
 
-exports.FieldModelBytes = FieldModelBytes
+export { FieldModelBytes };
 )CODE";
 
     // Prepare code template
@@ -5366,7 +5366,7 @@ class FieldModelString extends FieldModel {
   }
 }
 
-exports.FieldModelString = FieldModelString
+export { FieldModelString };
 )CODE";
 
     // Prepare code template
@@ -5573,7 +5573,7 @@ class FieldModelOptional extends FieldModel {
   }
 }
 
-exports.FieldModelOptional = FieldModelOptional
+export { FieldModelOptional };
 )CODE";
 
     // Prepare code template
@@ -5715,7 +5715,7 @@ class FieldModelArray extends FieldModel {
   }
 }
 
-exports.FieldModelArray = FieldModelArray
+export { FieldModelArray };
 )CODE";
 
     // Prepare code template
@@ -5929,7 +5929,7 @@ class FieldModelVector extends FieldModel {
   }
 }
 
-exports.FieldModelVector = FieldModelVector
+export { FieldModelVector };
 )CODE";
 
     // Prepare code template
@@ -6143,7 +6143,7 @@ class FieldModelSet extends FieldModel {
   }
 }
 
-exports.FieldModelSet = FieldModelSet
+export { FieldModelSet };
 )CODE";
 
     // Prepare code template
@@ -6374,7 +6374,7 @@ class FieldModelMap extends FieldModel {
   }
 }
 
-exports.FieldModelMap = FieldModelMap
+export { FieldModelMap };
 )CODE";
 
     // Prepare code template
@@ -6400,7 +6400,7 @@ class FinalModel extends FieldModelBase {
   }
 }
 
-exports.FinalModel = FinalModel
+export { FinalModel };
 )CODE";
 
     // Prepare code template
@@ -6478,7 +6478,7 @@ class FinalModel_NAME_ extends FinalModel {
   }
 }
 
-exports.FinalModel_NAME_ = FinalModel_NAME_
+export { FinalModel_NAME_ };
 )CODE";
 
     // Prepare code template
@@ -6616,7 +6616,7 @@ class FinalModelDecimal extends FinalModel {
   }
 }
 
-exports.FinalModelDecimal = FinalModelDecimal
+export { FinalModelDecimal };
 )CODE";
 
     // Prepare code template
@@ -6696,7 +6696,7 @@ class FinalModelTimestamp extends FinalModel {
   }
 }
 
-exports.FinalModelTimestamp = FinalModelTimestamp
+export { FinalModelTimestamp };
 )CODE";
 
     // Prepare code template
@@ -6774,7 +6774,7 @@ class FinalModelUUID extends FinalModel {
   }
 }
 
-exports.FinalModelUUID = FinalModelUUID
+export { FinalModelUUID };
 )CODE";
 
     // Prepare code template
@@ -6861,7 +6861,7 @@ class FinalModelBytes extends FinalModel {
   }
 }
 
-exports.FinalModelBytes = FinalModelBytes
+export { FinalModelBytes };
 )CODE";
 
     // Prepare code template
@@ -6948,7 +6948,7 @@ class FinalModelString extends FinalModel {
   }
 }
 
-exports.FinalModelString = FinalModelString
+export { FinalModelString };
 )CODE";
 
     // Prepare code template
@@ -7077,7 +7077,7 @@ class FinalModelOptional extends FinalModel {
   }
 }
 
-exports.FinalModelOptional = FinalModelOptional
+export { FinalModelOptional };
 )CODE";
 
     // Prepare code template
@@ -7192,7 +7192,7 @@ class FinalModelArray extends FinalModel {
   }
 }
 
-exports.FinalModelArray = FinalModelArray
+export { FinalModelArray };
 )CODE";
 
     // Prepare code template
@@ -7314,7 +7314,7 @@ class FinalModelVector extends FinalModel {
   }
 }
 
-exports.FinalModelVector = FinalModelVector
+export { FinalModelVector };
 )CODE";
 
     // Prepare code template
@@ -7436,7 +7436,7 @@ class FinalModelSet extends FinalModel {
   }
 }
 
-exports.FinalModelSet = FinalModelSet
+export { FinalModelSet };
 )CODE";
 
     // Prepare code template
@@ -7582,7 +7582,7 @@ class FinalModelMap extends FinalModel {
   }
 }
 
-exports.FinalModelMap = FinalModelMap
+export { FinalModelMap };
 )CODE";
 
     // Prepare code template
@@ -7716,7 +7716,7 @@ class Sender {
   }
 }
 
-exports.Sender = Sender
+export { Sender };
 )CODE";
 
     // Prepare code template
@@ -8127,7 +8127,7 @@ class Receiver {
   }
 }
 
-exports.Receiver = Receiver
+export { Receiver };
 )CODE";
 
     // Prepare code template
@@ -8611,7 +8611,7 @@ class Client {
   }
 }
 
-exports.Client = Client
+export { Client };
 )CODE";
 
     // Prepare code template
@@ -8634,7 +8634,7 @@ let MapToObject = function (map) {
   return obj
 }
 
-exports.MapToObject = MapToObject
+export { MapToObject };
 
 /**
  * Convert object instance to Map datatype
@@ -8647,7 +8647,7 @@ let ObjectToMap = function (obj) {
   return map
 }
 
-exports.ObjectToMap = ObjectToMap
+export { ObjectToMap };
 )CODE";
 
     // Prepare code template
@@ -8660,25 +8660,26 @@ void GeneratorJavaScript::GenerateImports(const std::shared_ptr<Package>& p)
 {
     // Generate common import
     WriteLine();
-    WriteLineIndent("const util = require('util')");
+    WriteLineIndent("import * as util from 'util'");
     WriteLine();
-    WriteLineIndent("const big = require('./big')");
-    WriteLineIndent("const int64 = require('./int64')");
-    WriteLineIndent("const uuid = require('./uuid')");
+    WriteLineIndent("import * as big from './big'");
+    WriteLineIndent("import * as int64 from './int64'");
+    WriteLineIndent("import * as uuid from './uuid'");
+
+    // Generate FBE import
+    WriteLine();
+    WriteLineIndent("import * as fbe from './fbe'");
+
+    // Generate packages import
+    if (p->import)
+        for (const auto& import : p->import->imports)
+            WriteLineIndent("import * as " + *import + " from './" + *import + "'");
+
     WriteLine();
     WriteLineIndent("const Big = big.Big // eslint-disable-line");
     WriteLineIndent("const Int64 = int64.Int64 // eslint-disable-line");
     WriteLineIndent("const UInt64 = int64.UInt64 // eslint-disable-line");
     WriteLineIndent("const UUID = uuid.UUID // eslint-disable-line");
-
-    // Generate FBE import
-    WriteLine();
-    WriteLineIndent("const fbe = require('./fbe')");
-
-    // Generate packages import
-    if (p->import)
-        for (const auto& import : p->import->imports)
-            WriteLineIndent("const " + *import + " = require('./" + *import + "')");
 }
 
 void GeneratorJavaScript::GeneratePackage(const std::shared_ptr<Package>& p)
@@ -8925,7 +8926,7 @@ void GeneratorJavaScript::GenerateEnum(const std::shared_ptr<EnumType>& e)
 
     // Generate enum exports
     WriteLine();
-    WriteLineIndent("exports." + *e->name + " = " + *e->name);
+    WriteLineIndent("export { " + *e->name + " };");
 
     // Generate enum field model
     GenerateEnumFieldModel(e);
@@ -8980,7 +8981,7 @@ class FieldModel_ENUM_NAME_ extends fbe.FieldModel {
   }
 }
 
-exports.FieldModel_ENUM_NAME_ = FieldModel_ENUM_NAME_
+export { FieldModel_ENUM_NAME_ };
 )CODE";
 
     std::string enum_type = (e->base && !e->base->empty()) ? *e->base : "int32";
@@ -9083,7 +9084,7 @@ class FinalModel_ENUM_NAME_ extends fbe.FinalModel {
   }
 }
 
-exports.FinalModel_ENUM_NAME_ = FinalModel_ENUM_NAME_
+export { FinalModel_ENUM_NAME_ };
 )CODE";
 
     std::string enum_type = (e->base && !e->base->empty()) ? *e->base : "int32";
@@ -9350,7 +9351,7 @@ void GeneratorJavaScript::GenerateFlags(const std::shared_ptr<FlagsType>& f)
 
     // Generate flags exports
     WriteLine();
-    WriteLineIndent("exports." + *f->name + " = " + *f->name);
+    WriteLineIndent("export { " + *f->name + " };");
 
     // Generate flags field model
     GenerateFlagsFieldModel(f);
@@ -9405,7 +9406,7 @@ class FieldModel_FLAGS_NAME_ extends fbe.FieldModel {
   }
 }
 
-exports.FieldModel_FLAGS_NAME_ = FieldModel_FLAGS_NAME_
+export { FieldModel_FLAGS_NAME_ };
 )CODE";
 
     std::string flags_type = (f->base && !f->base->empty()) ? *f->base : "int32";
@@ -9508,7 +9509,7 @@ class FinalModel_FLAGS_NAME_ extends fbe.FinalModel {
   }
 }
 
-exports.FinalModel_FLAGS_NAME_ = FinalModel_FLAGS_NAME_
+export { FinalModel_FLAGS_NAME_ };
 )CODE";
 
     std::string flags_type = (f->base && !f->base->empty()) ? *f->base : "int32";
@@ -10024,7 +10025,7 @@ void GeneratorJavaScript::GenerateStruct(const std::shared_ptr<StructType>& s)
 
     // Generate struct exports
     WriteLine();
-    WriteLineIndent("exports." + *s->name + " = " + *s->name);
+    WriteLineIndent("export { " + *s->name + " };");
 
     // Generate struct field model
     GenerateStructFieldModel(s);
@@ -10528,7 +10529,7 @@ void GeneratorJavaScript::GenerateStructFieldModel(const std::shared_ptr<StructT
 
     // Generate struct field model exports
     WriteLine();
-    WriteLineIndent("exports.FieldModel" + *s->name + " = FieldModel" + *s->name);
+    WriteLineIndent("export { FieldModel" + *s->name + " };");
 }
 
 void GeneratorJavaScript::GenerateStructModel(const std::shared_ptr<StructType>& s)
@@ -10721,7 +10722,7 @@ void GeneratorJavaScript::GenerateStructModel(const std::shared_ptr<StructType>&
 
     // Generate struct model exports
     WriteLine();
-    WriteLineIndent("exports." + *s->name + "Model = " + *s->name + "Model");
+    WriteLineIndent("export { " + *s->name + "Model };");
 }
 
 void GeneratorJavaScript::GenerateStructFinalModel(const std::shared_ptr<StructType>& s)
@@ -11031,7 +11032,7 @@ void GeneratorJavaScript::GenerateStructFinalModel(const std::shared_ptr<StructT
 
     // Generate struct final model exports
     WriteLine();
-    WriteLineIndent("exports.FinalModel" + *s->name + " = FinalModel" + *s->name);
+    WriteLineIndent("export { FinalModel" + *s->name + " };");
 }
 
 void GeneratorJavaScript::GenerateStructModelFinal(const std::shared_ptr<StructType>& s)
@@ -11190,7 +11191,7 @@ void GeneratorJavaScript::GenerateStructModelFinal(const std::shared_ptr<StructT
 
     // Generate struct model final exports
     WriteLine();
-    WriteLineIndent("exports." + *s->name + "FinalModel = " + *s->name + "FinalModel");
+    WriteLineIndent("export { " + *s->name + "FinalModel };");
 }
 
 void GeneratorJavaScript::GenerateProtocolVersion(const std::shared_ptr<Package>& p)
@@ -11204,8 +11205,8 @@ void GeneratorJavaScript::GenerateProtocolVersion(const std::shared_ptr<Package>
 
     // Generate sender exports
     WriteLine();
-    WriteLineIndent("exports.ProtocolVersionMajor = ProtocolVersionMajor");
-    WriteLineIndent("exports.ProtocolVersionMinor = ProtocolVersionMinor");
+    WriteLineIndent("export { ProtocolVersionMajor };");
+    WriteLineIndent("export { ProtocolVersionMinor };");
 }
 
 void GeneratorJavaScript::GenerateSender(const std::shared_ptr<Package>& p, bool final)
@@ -11430,7 +11431,7 @@ void GeneratorJavaScript::GenerateSender(const std::shared_ptr<Package>& p, bool
 
     // Generate sender exports
     WriteLine();
-    WriteLineIndent("exports." + sender + " = " + sender);
+    WriteLineIndent("export {" + sender + " };");
 }
 
 void GeneratorJavaScript::GenerateReceiver(const std::shared_ptr<Package>& p, bool final)
@@ -11619,7 +11620,7 @@ void GeneratorJavaScript::GenerateReceiver(const std::shared_ptr<Package>& p, bo
 
     // Generate receiver exports
     WriteLine();
-    WriteLineIndent("exports." + receiver + " = " + receiver + "");
+    WriteLineIndent("export { " + receiver + " };");
 }
 
 void GeneratorJavaScript::GenerateProxy(const std::shared_ptr<Package>& p, bool final)
@@ -11786,7 +11787,7 @@ void GeneratorJavaScript::GenerateProxy(const std::shared_ptr<Package>& p, bool 
 
     // Generate proxy exports
     WriteLine();
-    WriteLineIndent("exports." + proxy + " = " + proxy + "");
+    WriteLineIndent("export { " + proxy + " };");
 }
 
 void GeneratorJavaScript::GenerateClient(const std::shared_ptr<Package>& p, bool final)
@@ -12330,7 +12331,7 @@ void GeneratorJavaScript::GenerateClient(const std::shared_ptr<Package>& p, bool
 
     // Generate client exports
     WriteLine();
-    WriteLineIndent("exports." + client + " = " + client);
+    WriteLineIndent("export { " + client + " };");
 }
 
 bool GeneratorJavaScript::IsPrimitiveType(const std::string& type)

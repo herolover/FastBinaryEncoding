@@ -26,9 +26,8 @@ include(SetCompilerWarnings)
 include(SetPlatformFeatures)
 include(SystemInformation)
 
-SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} /EHsc /wd4189")
-
 if (MSVC)
+  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${COMMON_COMPILE_FLAGS} /EHsc /wd4189")
   cmake_policy(SET CMP0074 NEW)
   set(FLEX_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/tools/win_flex_bison/")
   set(BISON_ROOT "${CMAKE_CURRENT_SOURCE_DIR}/tools/win_flex_bison/")

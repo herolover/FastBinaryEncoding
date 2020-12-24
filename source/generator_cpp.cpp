@@ -9498,8 +9498,13 @@ void GeneratorCpp::GenerateSender_Source(const std::shared_ptr<Package>& p, bool
         WriteLineIndent("};");
 
         WriteLine();
-        WriteLineIndent(sender + "::" + sender + "(): _sender_data(std::make_unique<" + sender + "::Data>(this->_buffer))");
-        WriteLineIndent("{" + std::string(final ? " this->final(true); " : "") + "}");
+        WriteLineIndent(sender + "::" + sender + "()");
+        WriteLineIndent("{");
+        Indent(1);
+        WriteLineIndent(std::string(final ? " this->final(true); " : ""));
+        WriteLineIndent("_sender_data = std::make_unique<" + sender + "::Data>(this->_buffer);");
+        Indent(-1);
+        WriteLineIndent("};");
         WriteLineIndent(sender + "::" + sender + "(" + sender + "&&) noexcept = default;");
         WriteLineIndent(sender + "::~" + sender + "() = default;");
 
